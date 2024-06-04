@@ -1,3 +1,5 @@
 # -Google Voice
 HOST-SUFFIX, googleapis.com,PROXY
 HOST-SUFFIX, play.googleapis.com,PROXY
+HOST-SUFFIX, google.com,PROXY
+HOST-SUFFIX,googleusercontent.com,PROXY
