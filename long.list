@@ -1,0 +1,5 @@
+# LongEmby 分流规则
+DOMAIN,cfcdn.longemby.com,Proxy
+DOMAIN-SUFFIX,longemby.live,Proxy
+DOMAIN-SUFFIX,longemby.com,DIRECT
+DOMAIN-SUFFIX,longemby.top,DIRECT
