@@ -1,0 +1,48 @@
+name: Build HappyCapy Unsigned IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ happycapy-ios ]
+    paths-ignore:
+      - 'dist/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Xcode version
+        run: xcodebuild -version
+
+      - name: Build unsigned IPA
+        run: bash build_unsigned.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HappyCapy-unsigned-ipa
+          path: build/HappyCapy-unsigned.ipa
+          if-no-files-found: error
+
+      - name: Publish release with IPA
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: happycapy-build-${{ github.run_number }}
+          name: HappyCapy unsigned IPA build ${{ github.run_number }}
+          files: build/HappyCapy-unsigned.ipa
+
+      - name: Commit IPA back to dist/ for easy download
+        run: |
+          mkdir -p dist
+          cp build/HappyCapy-unsigned.ipa dist/
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dist/HappyCapy-unsigned.ipa
+          git commit -m "chore: add unsigned IPA build ${{ github.run_number }} [skip ci]" || echo "nothing to commit"
+          git push
