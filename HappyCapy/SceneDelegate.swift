@@ -15,6 +15,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
     }
 
+    func sceneWillEnterForeground(_ scene: UIScene) {
+        (window?.rootViewController as? ViewController)?.recheckEnabledOnly()
+    }
+
     func sceneDidEnterBackground(_ scene: UIScene) {
         (window?.rootViewController as? ViewController)?.saveWebViewState()
     }
