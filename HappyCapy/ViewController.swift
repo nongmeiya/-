@@ -245,7 +245,7 @@ final class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate
         configuration.preferences.javaScriptEnabled = true
         configuration.websiteDataStore = .default()
 
-        let t2sScript = WKUserScript(source: Self.traditionalToSimplifiedScript, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
+        let t2sScript = WKUserScript(source: Self.traditionalToSimplifiedScript, injectionTime: .atDocumentStart, forMainFrameOnly: false)
         configuration.userContentController.addUserScript(t2sScript)
 
         webView = WKWebView(frame: .zero, configuration: configuration)
@@ -423,28 +423,24 @@ final class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate
     var kids = node.childNodes;
     for (var i = 0; i < kids.length; i++) walk(kids[i]);
   }
-  function convTitle() {
+  var converting = false;
+  function process(mutations) {
+    if (converting) return;
+    converting = true;
+    for (var j = 0; j < mutations.length; j++) {
+      var m = mutations[j];
+      if (m.type === "characterData") walk(m.target);
+      for (var k = 0; k < m.addedNodes.length; k++) walk(m.addedNodes[k]);
+    }
     if (document.title) {
       var nt = conv(document.title);
       if (nt !== document.title) document.title = nt;
     }
+    converting = false;
   }
-  walk(document.body);
-  convTitle();
-  var pending = null;
-  var observer = new MutationObserver(function(mutations) {
-    if (pending) return;
-    pending = setTimeout(function() {
-      pending = null;
-      for (var j = 0; j < mutations.length; j++) {
-        var m = mutations[j];
-        if (m.type === "characterData") walk(m.target);
-        for (var k = 0; k < m.addedNodes.length; k++) walk(m.addedNodes[k]);
-      }
-      convTitle();
-    }, 120);
-  });
+  var observer = new MutationObserver(process);
   observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+  if (document.body) walk(document.body);
 })();
 """#
 }
